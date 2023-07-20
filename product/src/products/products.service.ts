@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Product } from '../schemas/product.schema';
@@ -9,27 +9,44 @@ export class ProductsService {
     constructor(@InjectModel('Product') private readonly productModel: Model<Product>) { }
 
     async findAll() {
-        return this.productModel.find().exec();
+        try {
+            return this.productModel.find().exec();
+        } catch (error) {
+            throw new HttpException('Error frtching Products', HttpStatus.BAD_REQUEST);
+        }
     }
 
     async findOne(id: string) {
         const data = await this.productModel.findById(id).exec();
-        if (data) {
-            return data
+        if (!data) {
+            throw new NotFoundException('Could not find Product.');
         }
-        return "No Data Found"
+        return data;
     }
 
     async create(createProductDto: CreateProductDto) {
-        const product = new this.productModel(createProductDto);
-        return product.save();
+        try {
+            const product = new this.productModel(createProductDto);
+            return product.save();
+        } catch (error) {
+            throw new HttpException('Error Creating Product', HttpStatus.BAD_REQUEST);
+        }
     }
 
     async update(id: string, createProductDto: CreateProductDto) {
-        return this.productModel.findByIdAndUpdate(id, createProductDto, { new: true }).exec();
+        try {
+
+            return this.productModel.findByIdAndUpdate(id, createProductDto, { new: true }).exec();
+        } catch (error) {
+            throw new HttpException('Error updating Product', HttpStatus.BAD_REQUEST);
+        }
     }
 
     async remove(id: string) {
-        return this.productModel.findByIdAndRemove(id).exec();
+        try {
+            return this.productModel.findByIdAndRemove(id).exec();
+        } catch (error) {
+            throw new HttpException('Error deleting Product', HttpStatus.BAD_REQUEST);
+        }
     }
 }
