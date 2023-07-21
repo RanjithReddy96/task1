@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Product } from '../schemas/product.schema';
 import { CreateProductDto } from '../dto/create-product.dto';
+import { UpdateProductDto } from '../dto/update-product.dto';
 
 @Injectable()
 export class ProductsService {
@@ -12,7 +13,7 @@ export class ProductsService {
         try {
             return this.productModel.find().exec();
         } catch (error) {
-            throw new HttpException('Error frtching Products', HttpStatus.BAD_REQUEST);
+            throw new HttpException('Error fetching Products', HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -26,17 +27,18 @@ export class ProductsService {
 
     async create(createProductDto: CreateProductDto) {
         try {
-            const product = new this.productModel(createProductDto);
-            return product.save();
+            const product = await this.productModel.create(createProductDto as any);
+
+            return product
         } catch (error) {
             throw new HttpException('Error Creating Product', HttpStatus.BAD_REQUEST);
         }
     }
 
-    async update(id: string, createProductDto: CreateProductDto) {
+    async update(id: string, updateProductDto: UpdateProductDto) {
         try {
 
-            return this.productModel.findByIdAndUpdate(id, createProductDto, { new: true }).exec();
+            return this.productModel.findByIdAndUpdate(id, updateProductDto, { new: true }).exec();
         } catch (error) {
             throw new HttpException('Error updating Product', HttpStatus.BAD_REQUEST);
         }
