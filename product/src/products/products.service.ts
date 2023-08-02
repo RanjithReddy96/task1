@@ -9,6 +9,7 @@ import { UpdateProductDto } from '../dto/update-product.dto';
 export class ProductsService {
     constructor(@InjectModel('Product') private readonly productModel: Model<Product>) { }
 
+    
     async findAll() {
         try {
             return this.productModel.find().exec();
